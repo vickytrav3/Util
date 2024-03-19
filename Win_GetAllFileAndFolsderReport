@@ -1,0 +1,37 @@
+# Specify the directory path
+$targetDirectory = "C:\PnP-Sites-Core-master"
+# Get all files and folders recursively
+$items = Get-ChildItem -Path $targetDirectory -Recurse
+
+# Filter out only files (excluding directories)
+$files = $items | Where-Object { -not $_.PSIsContainer }
+
+# Create an empty array to store file info
+$fileInfoArray = @()
+
+# Process each file
+$files | ForEach-Object {
+    $filename = $_.Name
+    $filepath = $_.FullName
+    $extension = $_.Extension
+    $dateModified = $_.LastWriteTime
+    $sizeKB = [math]::Round($_.Length / 1KB, 2)  # Convert size to kilobytes
+
+    # Create a custom object with file info
+    $fileInfo = [PSCustomObject]@{
+        FileName = $filename
+        FilePath = $filepath
+        Extension = $extension
+        DateModified = $dateModified
+        SizeKB = $sizeKB
+    }
+
+    # Add the custom object to the array
+    $fileInfoArray += $fileInfo
+}
+
+
+# Export the file info to a CSV file
+$fileInfoArray | Export-Csv -Path "C:\Users\vkumar\OneDrive - PPS\Projects\DigitalTransformation\FileReport.csv" -NoTypeInformation
+
+Write-Host "CSV report generated successfully!"
