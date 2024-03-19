@@ -1,0 +1,66 @@
+#Import SharePoint Online PowerShell Module
+Import-Module Microsoft.Online.SharePoint.PowerShell -DisableNameChecking
+#Load SharePoint CSOM Assemblies
+Add-Type -Path "C:\Program Files\Common Files\Microsoft Shared\Web Server Extensions\16\ISAPI\Microsoft.SharePoint.Client.dll"
+Add-Type -Path "C:\Program Files\Common Files\Microsoft Shared\Web Server Extensions\16\ISAPI\Microsoft.SharePoint.Client.Runtime.dll"
+
+
+#Read more: https://www.sharepointdiary.com/2016/11/sharepoint-online-powershell-to-create-document-library.html#ixzz8DqB3EPf1
+#Setup Credentials to connect
+$Cred = Get-Credential
+ 
+#Set up the context
+$Ctx = New-Object Microsoft.SharePoint.Client.ClientContext($SiteURL)
+$Ctx.Credentials = New-Object Microsoft.SharePoint.Client.SharePointOnlineCredentials($Cred.UserName,$Cred.Password)
+ 
+#Get All Lists from the web
+$Lists = $Ctx.Web.Lists
+$Ctx.Load($Lists)
+$Ctx.ExecuteQuery()
+
+#Set Parameters
+$SiteURL= "https://ppsdmn.sharepoint.com/sites/GroupFinanceDepartment"
+    
+Function Create-DocumentLibrary()
+{
+    param
+    (
+        [Parameter(Mandatory=$true)] [string] $SiteURL,
+        [Parameter(Mandatory=$true)] [string] $DocLibraryName
+    )   
+    Try { 
+            #Check if Library name doesn't exists already and create document library
+            if(!($Lists.Title -contains $DocLibraryName))
+            {
+                #create document library in sharepoint online powershell
+                $ListInfo = New-Object Microsoft.SharePoint.Client.ListCreationInformation
+                $ListInfo.Title = $DocLibraryName
+                $ListInfo.TemplateType = 101 #Document Library
+                $List = $Ctx.Web.Lists.Add($ListInfo)
+                $List.Update()
+                $Ctx.ExecuteQuery()
+   
+                write-host  -f Green "New Document Library has been created!"
+            }else{
+                Write-Host -f Yellow "List or Library '$DocLibraryName' already exist!"
+            }
+        }
+        Catch {
+            write-host -f Red "Error Creating Document Library!" $_.Exception.Message
+        }
+}
+  
+#Set Parameters
+$DocLibraryName="2006"
+#Call the function to create document library
+Create-DocumentLibrary -siteURL $SiteURL -DocLibraryName $DocLibraryName
+
+
+$Folders = @("2006","2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","3rd Party Returns","Asset Management Fee","Asset transfer","BGR issued","Botswana","Carbon tax","Change of banking details","DTA","Elaine IT3","FATCA","IFRIC 23","IT3b reporting","LTIS","Namibia Tax Legislation","Namibia","New folder","PAYE","Property Fund tax returns","SARS Guides","SARS Rulings","SARS Statement of Accounts 6 May 2010","Statutory Reporting","Tax Act Amendments","Tax cases","Tax opinions","Tax Working Group","Transferpricing","VAT Input Tax")
+foreach ($Folder in $Folders) {
+   Write-Host -ForegroundColor Cyan $Folder;
+}
+  
+
+
+#Read more: https://www.sharepointdiary.com/2016/11/sharepoint-online-powershell-to-create-document-library.html#ixzz8DpyIYAGy
