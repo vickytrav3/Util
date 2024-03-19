@@ -1,0 +1,20 @@
+ @echo off
+setlocal enabledelayedexpansion
+
+set "folder_path=C:\Users\vkumar\Projects\Company Secretory Site to SharePoint\"
+set "report_file=C:\Users\vkumar\Projects\report.txt"
+
+echo Filepath,Extension,FileName,Size(KB),LastModified > %report_file%
+
+for /r "%folder_path%" %%F in (*.*) do (
+    set "filepath=%%~dpF"
+    set "extension=%%~xF"
+    set "filename=%%~nxF"
+    set /a "size=%%~zF / 1024"  :: Convert bytes to kilobytes
+    set "lastmodified=%%~tF"
+    
+    echo "!filepath!",!extension!,!filename!,!size!,!lastmodified! >> %report_file%
+)
+
+echo Report created: %report_file%
+endlocal
