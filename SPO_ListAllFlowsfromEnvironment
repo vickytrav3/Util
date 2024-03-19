@@ -1,0 +1,22 @@
+Install-Module -Name Microsoft.PowerApps.Administration.PowerShell  
+Install-Module -Name Microsoft.PowerApps.PowerShell -AllowClobber 
+# Input Parameters  
+$envDispName='Finance Prod'  
+ 
+# This call opens prompt to collect credentials (Azure Active Directory account and password) used by the commands   
+Add-PowerAppsAccount  
+ 
+# Get the specific environment  
+$env=Get-AdminPowerAppEnvironment -ErrorAction SilentlyContinue| Where-Object {$_.DisplayName -eq $envDispName}  
+$envName=$env.EnvironmentName  
+ 
+# Get all the flows from specific environment which contains the display name as test  
+write-host -ForegroundColor Magenta "Getting flows from environment: " $env.DisplayName  
+$flows=Get-AdminFlow *test* -EnvironmentName $envName  
+ 
+# Loop through the flows and display teh values  
+foreach($flow in $flows)  
+{  
+    write-host -ForegroundColor Green "Flow Name: " $flow.FlowName " Display Name: " $flow.DisplayName " Created Time: " $flow.CreatedTime  
+}   
+
